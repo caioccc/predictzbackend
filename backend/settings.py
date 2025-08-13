@@ -109,6 +109,7 @@ DATABASES = {
 }
 
 NAME_DB = os.getenv('DB_NAME', 'db.sqlite3')
+DB_URL = os.getenv('DB_URL', '')
 
 if 'sqlite' in NAME_DB:
     DATABASES = {
@@ -129,7 +130,7 @@ elif 'app' in NAME_DB:
         }
     }
 else:
-    db_from_env = dj_database_url.config(default='postgresql://postgres:postgres@localhost:5432/{}'.format(NAME_DB),
+    db_from_env = dj_database_url.config(default=DB_URL,
                                          conn_max_age=600)
     DATABASES['default'].update(db_from_env)
 
