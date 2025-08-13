@@ -10,8 +10,8 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import League, Match, Team
-from .serializers import MatchSerializer, TeamSerializer, TeamStatsSerializer, LeagueSerializer
+from .models import League, Match, Team, ScrapeJob
+from .serializers import MatchSerializer, TeamSerializer, TeamStatsSerializer, LeagueSerializer, ScrapeJobSerializer
 from .utils_selenium import scrape_predictz_selenium
 
 
@@ -31,17 +31,17 @@ class ScrapeRangeView(APIView):
         start_date = today - datetime.timedelta(days=30)
         end_date = today + datetime.timedelta(days=3)
         results = []
+        jobs_created = []
         for n in range((end_date - start_date).days + 1):
             d = start_date + datetime.timedelta(days=n)
             date_str = d.strftime('%Y%m%d')
             try:
-                result = scrape_predictz_selenium(date_str)
-                print(f'Resultado para {date_str}: {result.get("added", 0)} adicionados, {result.get("updated", 0)} atualizados')
-                results.append({'date': date_str, 'added': result.get('added', 0), 'updated': result.get('updated', 0)})
+                job = ScrapeJob.objects.create(payload={'date': date_str})
+                jobs_created.append(job.id)
             except Exception as e:
                 print(f'Erro ao processar {date_str}: {e}')
-                results.append({'date': date_str, 'error': str(e)})
-        return Response({'detail': 'Coleta concluída.', 'results': results})
+                results.append({'date': date_str, 'error': str(e), 'status': 'FAILED_TO_CREATE'})
+        return Response({'detail': f'{len(jobs_created)} scraping jobs created.', 'job_ids': jobs_created}, status=status.HTTP_202_ACCEPTED)
 
 
 class TeamViewSet(viewsets.ModelViewSet):
@@ -223,12 +223,28 @@ class ScrapePredictzView(APIView):
             scrape_date = date_obj.strftime('%Y%m%d')
 
         try:
-            result = scrape_predictz_selenium(scrape_date)
-            return Response({'detail': 'Scraping executado com sucesso.', 'result': result})
+            job = ScrapeJob.objects.create(
+                payload={'date': scrape_date}
+            )
+            return Response({'detail': 'Scraping job created successfully.', 'job_id': job.id}, status=status.HTTP_202_ACCEPTED)
         except Exception as e:
-            return Response({'detail': f'Erro ao executar scraping: {str(e)}'},
+            return Response({'detail': f'Erro ao criar o job de scraping: {str(e)}'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+class JobStatusView(APIView):
+    """
+    View para verificar o status de um ScrapeJob.
+    """
+    permission_classes = [AllowAny]
+
+    def get(self, request, job_id):
+        try:
+            job = ScrapeJob.objects.get(id=job_id)
+            serializer = ScrapeJobSerializer(job)
+            return Response(serializer.data)
+        except ScrapeJob.DoesNotExist:
+            return Response({'error': 'Job não encontrado.'}, status=status.HTTP_404_NOT_FOUND)
 
 class MatchViewSet(viewsets.ModelViewSet):
     serializer_class = MatchSerializer

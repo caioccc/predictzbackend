@@ -86,13 +86,15 @@ def scrape_predictz_selenium(date_arg='today', stdout=None):
     try:
         driver = create_chrome_driver()
         driver.get(url)
-        time.sleep(2)  # Aguarda carregamento
+        print(f'Acessando URL: {url}')
+        time.sleep(5)  # Aguarda carregamento
 
         # Usa BeautifulSoup para parsear o HTML renderizado
 
         html = driver.page_source
         soup = BeautifulSoup(html, 'html.parser')
         # Tenta encontrar a tabela principal de jogos
+        print('Procurando tabela de jogos...')
         pttable = soup.find('div', {'class': 'pttable'})
         if not pttable:
             # fallback para variações

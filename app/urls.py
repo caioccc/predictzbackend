@@ -2,7 +2,7 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from .views import MatchViewSet, StatsView, ScrapePredictzView, DataExportImportView, StatsResultsView, \
-    StatsAdvancedView, TeamViewSet, ScrapeRangeView, LeagueViewSet, MyPredictionsViewSet
+    StatsAdvancedView, TeamViewSet, ScrapeRangeView, LeagueViewSet, MyPredictionsViewSet, JobStatusView
 
 router = DefaultRouter()
 router.register(r'leagues', LeagueViewSet)
@@ -17,5 +17,6 @@ urlpatterns = [
                   path('scrape/', ScrapePredictzView.as_view(), name='scrape'),
                   path('scrape/range/', ScrapeRangeView.as_view(), name='scrape-range'),
                   path('data/', DataExportImportView.as_view(), name='data-export-import'),
+                  path('jobs/<uuid:job_id>/status/', JobStatusView.as_view(), name='job-status'),
                   path('data/delete-all/', DataExportImportView.as_view(), name='data-delete-all'),
               ] + router.urls

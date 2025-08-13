@@ -1,6 +1,7 @@
 # from django.db import models
 from django.db import models
 from django.conf import settings
+import uuid
 # Create your models here.
 
 class League(models.Model):
@@ -90,3 +91,21 @@ class Match(models.Model):
             self.actual_home_score is not None and self.actual_away_score is not None and
             self.predictz_home_score == self.actual_home_score and self.predictz_away_score == self.actual_away_score
         )
+
+
+class ScrapeJob(models.Model):
+    STATUS_CHOICES = [
+        ('PENDING', 'Pendente'),
+        ('PROCESSING', 'Processando'),
+        ('COMPLETED', 'Concluído'),
+        ('FAILED', 'Falhou'),
+    ]
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
+    payload = models.JSONField(default=dict, help_text="Parâmetros para o job, como a data do scrape.")
+    result = models.JSONField(null=True, blank=True, help_text="Resultado do job, como contagem ou erro.")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Job {self.id} ({self.payload.get('date', 'N/A')}) - {self.status}"

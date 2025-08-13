@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import League, Team, Match
+from .models import League, Team, Match, ScrapeJob
 from django.db.models import Q, F
 
 class LeagueSerializer(serializers.ModelSerializer):
@@ -75,3 +75,8 @@ class MatchSerializer(serializers.ModelSerializer):
             'actual_home_score', 'actual_away_score',
             'match_link'
         ]
+
+class ScrapeJobSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ScrapeJob
+        fields = ['id', 'status', 'payload', 'result', 'created_at', 'updated_at']

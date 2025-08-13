@@ -109,30 +109,30 @@ DATABASES = {
 }
 
 NAME_DB = os.getenv('DB_NAME', 'db.sqlite3')
-DB_URL = os.getenv('DB_URL', '')
+DB_URL = os.getenv('DB_URL', 'postgresql://finance_tn9u_user:6cz09ttp0DSHtKnCeQG0LJlEtfltz3Ik@dpg-d28jp2ggjchc73bomslg-a.oregon-postgres.render.com/finance_tn9u')
 
-if 'sqlite' in NAME_DB:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
-elif 'app' in NAME_DB:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-
-            'HOST': os.getenv('DB_HOST', 'db'),
-            'NAME': os.getenv('DB_NAME', 'app'),
-            'USER': os.getenv('DB_USER', 'postgres'),
-            'PASSWORD': os.getenv('DB_PASS', 'supersecretpassword'),
-        }
-    }
-else:
-    db_from_env = dj_database_url.config(default=DB_URL,
-                                         conn_max_age=600)
-    DATABASES['default'].update(db_from_env)
+# if 'sqlite' in NAME_DB:
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.sqlite3',
+#             'NAME': BASE_DIR / 'db.sqlite3',
+#         }
+#     }
+# elif 'app' in NAME_DB:
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.postgresql',
+#
+#             'HOST': os.getenv('DB_HOST', 'db'),
+#             'NAME': os.getenv('DB_NAME', 'app'),
+#             'USER': os.getenv('DB_USER', 'postgres'),
+#             'PASSWORD': os.getenv('DB_PASS', 'supersecretpassword'),
+#         }
+#     }
+# else:
+db_from_env = dj_database_url.config(default=DB_URL,
+                                     conn_max_age=600)
+DATABASES['default'].update(db_from_env)
 
 
 # Password validation

@@ -1,11 +1,18 @@
 from django.contrib import admin
-from .models import League, Team, Match
+from .models import League, Team, Match, ScrapeJob
 
 
 @admin.register(League)
 class LeagueAdmin(admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
+
+
+@admin.register(ScrapeJob)
+class ScrapeJobAdmin(admin.ModelAdmin):
+    list_display = ('id', 'status', 'created_at', 'updated_at')
+    search_fields = ('id',)
+    actions = None
 
 
 class HomeMatchInline(admin.TabularInline):
